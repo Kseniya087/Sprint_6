@@ -1,10 +1,10 @@
+import allure
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
+from pages.base_page import BasePage
 
 
-class OrderPage:
+class OrderPage(BasePage):
     ORDER_URL = "https://qa-scooter.praktikum-services.ru/order"
     STATUS_URL = "https://qa-scooter.praktikum-services.ru/track?t={order_numnber}"
 
@@ -23,71 +23,57 @@ class OrderPage:
     CONFIRM_YES_BUTTON = (By.XPATH, "//button[text()='Да']")
     SUCCESS_HEADER= (By.XPATH, "//div[contains(text(),'Заказ оформлен')]")
     ORDER_NUMBER_TEXT = (By.XPATH, "//div[contains(text(),'Номер заказа')]")
-    VIEW_STATUS_BUTTON = (By.XPATH,"//button[text()='Посмотреть статус']")
 
 
-    def __init__(self, driver):
-        self.driver = driver
-        self.wait = WebDriverWait(driver, 10)
-
-    def fill_first_step(self, name, surname,address,metro, phone):
-        self.driver.find_element(*self.NAME_INPUT).send_keys(name)
-        self.driver.find_element(*self.SURNAME_INPUT).send_keys(surname)
-        self.driver.find_element(*self.ADDRESS_INPUT).send_keys(address)
+    @allure.step("Заполнить первую форму заказа (Имя: {name}, Фамилия: {surname}, Адрес: {address}, Телефон: {phone})")
+    def fill_first_step(self, name, surname, address, metro, phone):
+        self.send_keys(self.NAME_INPUT, name)
+        self.send_keys(self.SURNAME_INPUT, surname)
+        self.send_keys(self.ADDRESS_INPUT, address)
         self.select_metro(metro)
-        self.driver.find_element(*self.PHONE_INPUT).send_keys(phone)
-        self.driver.find_element(*self.NEXT_BUTTON).click()
+        self.send_keys(self.PHONE_INPUT, phone)
+        self.click(self.NEXT_BUTTON)
 
+    @allure.step("Выбрать станцию метро: {station_name}")
     def select_metro(self, station_name):
-        metro_input = self.driver.find_element(*self.METRO_INPUT)
+        metro_input = self.find_element(self.METRO_INPUT)
         metro_input.send_keys(station_name)
-
+        
         locator = (By.XPATH, f"//button[contains(@class, 'select-search__option') and contains(., '{station_name}')]")
-        self.wait.until(EC.element_to_be_clickable(locator)).click()
+        self.click(locator)
 
-
-
+    @allure.step("Заполнить вторую форму заказа (Дата: {date}, Период: {period})")
     def fill_second_step(self, date, period, color, comment):
-        date_field = self.driver.find_element(*self.DATE_INPUT)
+        date_field = self.find_element(self.DATE_INPUT)
         date_field.clear()
         date_field.send_keys(date)
-
         date_field.send_keys(Keys.ENTER)
         
         self.select_rental_period(period)
         self.select_color(color)
-        self.driver.find_element(*self.COMMENT_INPUT).send_keys(comment)
+        self.send_keys(self.COMMENT_INPUT, comment)
 
+    @allure.step("Выбрать срок аренды: {period_text}")
     def select_rental_period(self, period_text):
-            self.driver.find_element(*self.RENTAL_DROPDOWN).click()
+        self.click(self.RENTAL_DROPDOWN)
+        
+        locator = (By.XPATH, f"//div[contains(@class, 'Dropdown-option') and text()='{period_text}']")
+        self.click(locator)
 
-            locator = (By.XPATH, f"//div[contains(@class, 'Dropdown-option') and text()= '{period_text}']")
-            self.wait.until(EC.element_to_be_clickable(locator)).click()
-
+    @allure.step("Выбрать цвет самоката (ID: {color_id})")
     def select_color(self, color_id):
         locator = (By.ID, color_id)
-        self.driver.find_element(*locator).click()
+        self.click(locator)
 
+    @allure.step("Нажать 'Заказать' и подтвердить заказ")
     def click_finish_order_button(self):
-        self.driver.find_element(*self.FINISH_ORDER_BUTTON).click()
+        self.click(self.FINISH_ORDER_BUTTON)
+        self.click(self.CONFIRM_YES_BUTTON)
 
-        self.wait.until(EC.element_to_be_clickable(self.CONFIRM_YES_BUTTON)).click()
-
-
+    @allure.step("Проверить, что заказ успешно оформлен")
     def is_order_success(self):
-        return self.wait.until(EC.visibility_of_element_located(self.SUCCESS_HEADER)).is_displayed()
+        return self.is_element_visible(self.SUCCESS_HEADER)
 
+    @allure.step("Получить номер оформленного заказа")
     def get_order_number(self):
-        return self.driver.find_element(*self.ORDER_NUMBER_TEXT).text
-
-    def click_view_status(self):
-        self.driver.find_element(*self.VIEW_STATUS_BUTTON).click()
-
-
-        
-
-
-    
-
-
-
+        return self.get_text(self.ORDER_NUMBER_TEXT)
