@@ -10,7 +10,7 @@ class MainPage(BasePage):
     SAMOKAT_LOGO = (By.XPATH, "//a[contains(@class, 'Header_LogoScooter')]")
     YANDEX_LOGO = (By.XPATH, "//a[contains(@class, 'Header_LogoYandex')]")
 
-    FAQ_QUESTOIN = (By.XPATH, "//div[contains(@id,'accordion__heading-{index}')]")
+    FAQ_QUESTION = (By.XPATH, "//div[contains(@id,'accordion__heading-{index}')]")
     FAQ_ANSWER = (By.XPATH, "//div[contains(@id,'accordion__panel-{index}')]")
 
     COOKIE_ACCEPT_BUTTON = (By.ID, "rcc-confirm-button")
@@ -41,11 +41,11 @@ class MainPage(BasePage):
 
     @allure.step("Кликнуть на вопрос в FAQ с индексом {index}")
     def click_faq_question(self, index):
-        locator = (By.XPATH, f'//div[contains(@id, "accordion__heading-{index}")]')
+        locator = (self.FAQ_QUESTION[0], self.FAQ_QUESTION[1].format(index=index))
         self.scroll_to_element(locator)
         self.click(locator)
 
     @allure.step("Получить текст ответа в FAQ с индексом {index}")
     def get_faq_answer(self, index):
-        locator = (By.XPATH, f'//div[contains(@id, "accordion__panel-{index}")]/p')
+        locator = (self.FAQ_ANSWER[0], self.FAQ_ANSWER[1].format(index=index))
         return self.get_text(locator)

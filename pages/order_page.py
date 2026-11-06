@@ -5,9 +5,6 @@ from pages.base_page import BasePage
 
 
 class OrderPage(BasePage):
-    ORDER_URL = "https://qa-scooter.praktikum-services.ru/order"
-    STATUS_URL = "https://qa-scooter.praktikum-services.ru/track?t={order_numnber}"
-
     NAME_INPUT = (By.XPATH, "//input[@placeholder='* Имя']")
     SURNAME_INPUT = (By.XPATH, "//input[@placeholder='* Фамилия']")
     ADDRESS_INPUT = (By.XPATH, "//input[@placeholder='* Адрес: куда привезти заказ']")
@@ -22,7 +19,7 @@ class OrderPage(BasePage):
     
     CONFIRM_YES_BUTTON = (By.XPATH, "//button[text()='Да']")
     SUCCESS_HEADER= (By.XPATH, "//div[contains(text(),'Заказ оформлен')]")
-    ORDER_NUMBER_TEXT = (By.XPATH, "//div[contains(text(),'Номер заказа')]")
+  
 
 
     @allure.step("Заполнить первую форму заказа (Имя: {name}, Фамилия: {surname}, Адрес: {address}, Телефон: {phone})")
@@ -73,7 +70,3 @@ class OrderPage(BasePage):
     @allure.step("Проверить, что заказ успешно оформлен")
     def is_order_success(self):
         return self.is_element_visible(self.SUCCESS_HEADER)
-
-    @allure.step("Получить номер оформленного заказа")
-    def get_order_number(self):
-        return self.get_text(self.ORDER_NUMBER_TEXT)
